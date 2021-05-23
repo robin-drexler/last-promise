@@ -10,6 +10,7 @@ export function lastPromise<R, P extends any[]>(fn: (...args: P) => R) {
     } else {
       return new Promise((resolve, reject) => {
         let token = current;
+
         result.then(
           (promiseResult) => {
             if (current === token) {
