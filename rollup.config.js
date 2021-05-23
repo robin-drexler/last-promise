@@ -9,7 +9,11 @@ export default {
   plugins: [
     // `declarationDir` seems to be relative to the the output dir.
     // not changing it to ./ causes d.ts files to end up in a ./dist/dist folder.
-    typescript({ tsconfig: "./tsconfig.json", declarationDir: "./" }),
+    typescript({
+      tsconfig: "./tsconfig.json",
+      declarationDir: "./",
+      exclude: ["./**/tests/**/*.*"],
+    }),
     externals({ deps: true }),
   ],
   output: [
