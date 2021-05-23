@@ -3,6 +3,8 @@
   "version": "0.0.1",
   "description": "Only return result of promise that was last started.",
   "main": "dist/last-promise.js",
+  "module": "dist/last-promise.mjs",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "rm -rf dist && rollup -c",
     "test": "jest",
