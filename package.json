@@ -1,7 +1,7 @@
 {
   "name": "last-promise",
   "version": "0.0.1",
-  "description": "",
+  "description": "Only return result of promise that was last started",
   "main": "dist/last-promise.js",
   "scripts": {
     "build": "rm -rf dist && rollup -c",

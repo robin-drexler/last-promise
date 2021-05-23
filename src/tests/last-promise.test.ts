@@ -1,11 +1,5 @@
 import { lastPromise } from "../index";
-
-function getResolvablePromise() {
-  let resolve: (value: unknown) => void = () => {};
-  const promise = new Promise((_resolve) => (resolve = _resolve));
-
-  return { promise, resolve };
-}
+import { getResolvablePromise, nextTick } from "./utils";
 
 describe("last-promise", () => {
   it("only resolves promise of last function call even if first resolves earlier", async () => {
@@ -37,9 +31,7 @@ describe("last-promise", () => {
     thirdPromise.resolve("third");
     secondPromise.resolve("second");
 
-    await new Promise((resolve) => {
-      setTimeout(resolve, 0);
-    });
+    await nextTick();
 
     expect(firstResolveSpy).not.toHaveBeenCalled();
     expect(secondResolveSpy).not.toHaveBeenCalled();
@@ -62,5 +54,40 @@ describe("last-promise", () => {
 
     expect(fn).toHaveBeenNthCalledWith(1, "first");
     expect(fn).toHaveBeenNthCalledWith(2, "second");
+  });
+
+  it("only rejects promise of last function call even if first rejects earlier", async () => {
+    const firstRejectSpy = jest.fn();
+    const secondRejectSpy = jest.fn();
+
+    const firstResolveSpy = jest.fn();
+    const secondResolveSpy = jest.fn();
+
+    const firstPromise = getResolvablePromise();
+    const secondPromise = getResolvablePromise();
+
+    const fn = jest
+      .fn()
+      .mockReturnValueOnce(firstPromise.promise)
+      .mockReturnValueOnce(secondPromise.promise);
+
+    const wrappedFn = lastPromise(fn);
+
+    const firstResult = wrappedFn();
+    const secondResult = wrappedFn();
+
+    firstResult.then(firstResolveSpy, firstRejectSpy);
+    secondResult.then(secondResolveSpy, secondRejectSpy);
+
+    firstPromise.reject("first");
+    secondPromise.reject("second");
+
+    await nextTick();
+
+    expect(firstRejectSpy).not.toHaveBeenCalled();
+    expect(secondRejectSpy).toHaveBeenCalledWith("second");
+
+    expect(firstResolveSpy).not.toHaveBeenCalled();
+    expect(secondResolveSpy).not.toHaveBeenCalled();
   });
 });

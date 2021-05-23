@@ -8,13 +8,20 @@ export function lastPromise<R, P extends any[]>(fn: (...args: P) => R) {
     if (!isPromise(result)) {
       return result;
     } else {
-      return new Promise((resolve) => {
+      return new Promise((resolve, reject) => {
         let token = current;
-        result.then((promiseResult) => {
-          if (current === token) {
-            resolve(promiseResult);
+        result.then(
+          (promiseResult) => {
+            if (current === token) {
+              resolve(promiseResult);
+            }
+          },
+          (error) => {
+            if (current === token) {
+              reject(error);
+            }
           }
-        });
+        );
       }) as any;
     }
   };
